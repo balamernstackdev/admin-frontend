@@ -9,6 +9,7 @@ const TaskDetailPage = lazy(() => import('../pages/user/TaskDetailPage'));
 const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'));
 const AdminTasksPage = lazy(() => import('../pages/admin/AdminTasksPage'));
 const AdminCreateTaskPage = lazy(() => import('../pages/admin/AdminCreateTaskPage'));
+const AdminEditTaskPage = lazy(() => import('../pages/admin/AdminEditTaskPage'));
 
 const Loader = () => (
   <div className="min-h-screen flex items-center justify-center">
@@ -34,6 +35,7 @@ const AppRouter = () => (
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/tasks" element={<AdminTasksPage />} />
             <Route path="/admin/tasks/create" element={<AdminCreateTaskPage />} />
+            <Route path="/admin/tasks/:taskId/edit" element={<AdminEditTaskPage />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

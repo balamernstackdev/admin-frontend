@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { AdminLayout } from '../../layouts/AdminLayout';
@@ -12,6 +12,7 @@ import { Toast } from '../../components/ui/index';
 import { extractThumbnailUrl } from '../../utils/thumbnail';
 
 const linkSchema = z.object({
+  id: z.string().optional(),
   platform: z.enum(['instagram', 'youtube', 'facebook', 'x', 'custom']),
   url: z.string().url('Must be a valid HTTPS URL').refine(v => v.startsWith('https://'), 'Must use HTTPS'),
   label: z.string().min(1, 'Label required'),
@@ -30,20 +31,22 @@ const schema = z.object({
   endAt: z.string().optional(),
   links: z.array(linkSchema).optional(),
 });
-//gyugyu
+
 type FormData = z.infer<typeof schema>;
 
 const ACTION_TYPES = ['like', 'follow', 'subscribe', 'share', 'repost', 'comment', 'watch', 'visit', 'custom'];
 
-const AdminCreateTaskPage = () => {
+const AdminEditTaskPage = () => {
   const navigate = useNavigate();
+  const { taskId } = useParams<{ taskId: string }>();
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const { register, control, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, control, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       status: 'DRAFT',
-      links: [{ platform: 'instagram', url: '', label: '', actions: [{ actionType: 'like', isRequired: true }] }],
+      links: [],
     },
   });
 
@@ -51,30 +54,76 @@ const AdminCreateTaskPage = () => {
   const thumbnailUrl = watch('thumbnailUrl');
 
   React.useEffect(() => {
-    if (firstLinkUrl && !thumbnailUrl) {
+    if (firstLinkUrl && !thumbnailUrl && !loading) {
       const extracted = extractThumbnailUrl(firstLinkUrl);
       if (extracted) {
         setValue('thumbnailUrl', extracted, { shouldValidate: true, shouldDirty: true });
       }
     }
-  }, [firstLinkUrl, thumbnailUrl, setValue]);
+  }, [firstLinkUrl, thumbnailUrl, loading, setValue]);
 
   const { fields: links, append, remove } = useFieldArray({ control, name: 'links' });
 
+  const loadTask = useCallback(async () => {
+    if (!taskId) return;
+    try {
+      setLoading(true);
+      const res = await adminTaskService.getTask(taskId);
+      const task = res.data;
+      reset({
+        title: task.title,
+        description: task.description,
+        instructions: task.instructions,
+        thumbnailUrl: task.thumbnailUrl || '',
+        status: task.status,
+        startAt: task.startAt ? new Date(task.startAt).toISOString().slice(0, 16) : undefined,
+        endAt: task.endAt ? new Date(task.endAt).toISOString().slice(0, 16) : undefined,
+        links: task.links?.map((l: any) => ({
+          id: l.id,
+          platform: l.platform,
+          url: l.url,
+          label: l.label,
+          description: l.description,
+          sortOrder: l.sortOrder,
+          actions: l.actions,
+        })) || [],
+      });
+    } catch {
+      setToast({ message: 'Failed to load task', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  }, [taskId, reset]);
+
+  useEffect(() => {
+    loadTask();
+  }, [loadTask]);
+
   const onSubmit = async (data: FormData) => {
+    if (!taskId) return;
     try {
       const payload = {
         ...data,
         startAt: data.startAt ? new Date(data.startAt).toISOString() : undefined,
         endAt: data.endAt ? new Date(data.endAt).toISOString() : undefined,
       };
-      const res = await adminTaskService.createTask(payload);
-      setToast({ message: 'Task created successfully!', type: 'success' });
+      await adminTaskService.updateTask(taskId, payload);
+      setToast({ message: 'Task updated successfully!', type: 'success' });
       setTimeout(() => navigate(`/admin/tasks`), 1500);
     } catch (err: any) {
-      setToast({ message: err?.response?.data?.message || 'Failed to create task', type: 'error' });
+      setToast({ message: err?.response?.data?.message || 'Failed to update task', type: 'error' });
     }
   };
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center p-12">
+          <div className="w-10 h-10 border-4 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
@@ -82,8 +131,8 @@ const AdminCreateTaskPage = () => {
 
       <div className="w-full">
         <div className="mb-6">
-          <h1 className="text-3xl font-black text-gray-900">Create Task</h1>
-          <p className="text-gray-500 mt-1">Set up a new social media engagement task</p>
+          <h1 className="text-3xl font-black text-gray-900">Edit Task</h1>
+          <p className="text-gray-500 mt-1">Update existing social media task</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -106,6 +155,8 @@ const AdminCreateTaskPage = () => {
                 <option value="DRAFT">Draft</option>
                 <option value="PUBLISHED">Published</option>
                 <option value="PAUSED">Paused</option>
+                <option value="EXPIRED">Expired</option>
+                <option value="ARCHIVED">Archived</option>
               </Select>
               <Input label="Start Date" id="task-start" type="datetime-local" {...register('startAt')} />
               <Input label="End Date" id="task-end" type="datetime-local" {...register('endAt')} />
@@ -132,11 +183,9 @@ const AdminCreateTaskPage = () => {
                 <div key={field.id} className="relative border border-gray-100 rounded-2xl p-5 bg-gray-50/50">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-semibold text-gray-700 text-sm">Social Link #{idx + 1}</h3>
-                    {links.length > 1 && (
-                      <button type="button" onClick={() => remove(idx)} className="text-xs text-red-500 hover:text-red-700 font-semibold">
-                        Remove
-                      </button>
-                    )}
+                    <button type="button" onClick={() => remove(idx)} className="text-xs text-red-500 hover:text-red-700 font-semibold">
+                      Remove
+                    </button>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Select label="Platform" id={`link-platform-${idx}`} {...register(`links.${idx}.platform`)}>
@@ -168,8 +217,8 @@ const AdminCreateTaskPage = () => {
             <Button type="button" variant="secondary" onClick={() => navigate('/admin/tasks')} className="flex-1 sm:flex-none sm:w-32">
               Cancel
             </Button>
-            <Button id="submit-create-task" type="submit" loading={isSubmitting} className="flex-1">
-              Create Task
+            <Button id="submit-edit-task" type="submit" loading={isSubmitting} className="flex-1">
+              Save Changes
             </Button>
           </div>
         </form>
@@ -178,4 +227,4 @@ const AdminCreateTaskPage = () => {
   );
 };
 
-export default AdminCreateTaskPage;
+export default AdminEditTaskPage;

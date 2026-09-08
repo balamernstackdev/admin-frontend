@@ -6,6 +6,7 @@ import type { Task } from '../../types';
 import { formatDate, platformIcons } from '../../utils/index';
 import { Badge, Toast, Modal, EmptyState } from '../../components/ui/index';
 import { Button } from '../../components/ui/Button';
+import { Edit2, PauseCircle, PlayCircle, Trash2, Eye } from 'lucide-react';
 
 const platforms = ['All', 'instagram', 'youtube', 'facebook', 'x', 'custom'];
 const statuses = ['All', 'DRAFT', 'PUBLISHED', 'PAUSED', 'EXPIRED', 'ARCHIVED'];
@@ -150,18 +151,30 @@ const AdminTasksPage = () => {
                         <td className="px-6 py-4 font-bold text-violet-600">👥 {task.completionCount}</td>
                         <td className="px-6 py-4 text-gray-500 text-xs">{formatDate(task.endAt)}</td>
                         <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <Link to={`/admin/tasks/${task.id}/edit`} className="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors">Edit</Link>
+                          <div className="flex items-center gap-3">
+                            <Link to={`/tasks/${task.id}`} target="_blank" className="text-blue-600 hover:text-blue-800 transition-colors" title="View as User">
+                              <Eye size={18} />
+                            </Link>
+                            <Link to={`/admin/tasks/${task.id}/edit`} className="text-violet-600 hover:text-violet-800 transition-colors" title="Edit">
+                              <Edit2 size={18} />
+                            </Link>
                             {task.status !== 'PUBLISHED' && (
-                              <button onClick={() => handleStatusChange(task.id, 'PUBLISHED')} className="text-xs font-semibold text-green-600 hover:text-green-800">Publish</button>
+                              <button onClick={() => handleStatusChange(task.id, 'PUBLISHED')} className="text-green-600 hover:text-green-800 transition-colors" title="Publish">
+                                <PlayCircle size={18} />
+                              </button>
                             )}
                             {task.status === 'PUBLISHED' && (
-                              <button onClick={() => handleStatusChange(task.id, 'PAUSED')} className="text-xs font-semibold text-amber-600 hover:text-amber-800">Pause</button>
+                              <button onClick={() => handleStatusChange(task.id, 'PAUSED')} className="text-amber-600 hover:text-amber-800 transition-colors" title="Pause">
+                                <PauseCircle size={18} />
+                              </button>
                             )}
                             <button
                               onClick={() => setDeleteModal({ open: true, task })}
-                              className="text-xs font-semibold text-red-500 hover:text-red-700"
-                            >Delete</button>
+                              className="text-red-500 hover:text-red-700 transition-colors"
+                              title="Delete"
+                            >
+                              <Trash2 size={18} />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -185,8 +198,24 @@ const AdminTasksPage = () => {
                     <span>{task.links?.[0]?.platform || 'custom'}</span>
                   </div>
                   <div className="flex gap-2">
-                    <Link to={`/admin/tasks/${task.id}/edit`} className="flex-1 py-2 rounded-xl bg-violet-50 text-violet-600 text-xs font-bold text-center">Edit</Link>
-                    <button onClick={() => setDeleteModal({ open: true, task })} className="flex-1 py-2 rounded-xl bg-red-50 text-red-600 text-xs font-bold">Delete</button>
+                    <Link to={`/tasks/${task.id}`} target="_blank" className="flex-1 py-2 rounded-xl bg-blue-50 text-blue-600 flex justify-center items-center gap-2 text-xs font-bold transition-colors hover:bg-blue-100">
+                      <Eye size={16} /> View
+                    </Link>
+                    <Link to={`/admin/tasks/${task.id}/edit`} className="flex-1 py-2 rounded-xl bg-violet-50 text-violet-600 flex justify-center items-center gap-2 text-xs font-bold transition-colors hover:bg-violet-100">
+                      <Edit2 size={16} /> Edit
+                    </Link>
+                    {task.status !== 'PUBLISHED' ? (
+                      <button onClick={() => handleStatusChange(task.id, 'PUBLISHED')} className="flex-1 py-2 rounded-xl bg-green-50 text-green-600 flex justify-center items-center gap-2 text-xs font-bold transition-colors hover:bg-green-100">
+                        <PlayCircle size={16} /> Publish
+                      </button>
+                    ) : (
+                      <button onClick={() => handleStatusChange(task.id, 'PAUSED')} className="flex-1 py-2 rounded-xl bg-amber-50 text-amber-600 flex justify-center items-center gap-2 text-xs font-bold transition-colors hover:bg-amber-100">
+                        <PauseCircle size={16} /> Pause
+                      </button>
+                    )}
+                    <button onClick={() => setDeleteModal({ open: true, task })} className="flex-1 py-2 rounded-xl bg-red-50 text-red-600 flex justify-center items-center gap-2 text-xs font-bold transition-colors hover:bg-red-100">
+                      <Trash2 size={16} /> Delete
+                    </button>
                   </div>
                 </div>
               ))}
