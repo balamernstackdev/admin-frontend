@@ -34,7 +34,7 @@ const schema = z.object({
 //gyugyu
 type FormData = z.infer<typeof schema>;
 
-const ACTION_TYPES = ['like', 'follow', 'subscribe', 'share', 'repost', 'comment', 'watch', 'visit', 'custom'];
+const ACTION_TYPES = ['like', 'follow', 'subscribe', 'share', 'repost', 'comment', 'watch', 'visit', 'report', 'custom'];
 
 const AdminCreateTaskPage = () => {
   const navigate = useNavigate();
