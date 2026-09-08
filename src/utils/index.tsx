@@ -1,4 +1,3 @@
-import React from 'react';
 import { FaInstagram, FaYoutube, FaFacebook, FaXTwitter, FaLink } from 'react-icons/fa6';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';

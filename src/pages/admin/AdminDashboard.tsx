@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AdminLayout } from '../../layouts/AdminLayout';
 import { adminAnalyticsService } from '../../services/services';
 import { StatCard } from '../../components/ui/Card';

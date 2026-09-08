@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { AdminLayout } from '../../layouts/AdminLayout';
 import { adminTaskService } from '../../services/services';
 import type { Task } from '../../types';
@@ -12,7 +12,6 @@ const platforms = ['All', 'instagram', 'youtube', 'facebook', 'x', 'custom'];
 const statuses = ['All', 'DRAFT', 'PUBLISHED', 'PAUSED', 'EXPIRED', 'ARCHIVED'];
 
 const AdminTasksPage = () => {
-  const navigate = useNavigate();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');

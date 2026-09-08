@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { AdminLayout } from '../../layouts/AdminLayout';
@@ -10,14 +10,15 @@ import { Input, Textarea, Select } from '../../components/ui/Input';
 import { Card, CardBody, CardHeader } from '../../components/ui/Card';
 import { Toast } from '../../components/ui/index';
 import { extractThumbnailUrl } from '../../utils/thumbnail';
+import React from 'react';
 
 const linkSchema = z.object({
   platform: z.enum(['instagram', 'youtube', 'facebook', 'x', 'custom']),
   url: z.string().url('Must be a valid HTTPS URL').refine(v => v.startsWith('https://'), 'Must use HTTPS'),
   label: z.string().min(1, 'Label required'),
   description: z.string().optional(),
-  sortOrder: z.number().default(0),
-  actions: z.array(z.object({ actionType: z.string().min(1), isRequired: z.boolean().default(true) })).optional(),
+  sortOrder: z.number().optional(),
+  actions: z.array(z.object({ actionType: z.string().min(1), isRequired: z.boolean().optional() })).optional(),
 });
 
 const schema = z.object({
@@ -25,7 +26,7 @@ const schema = z.object({
   description: z.string().min(10, 'Description too short'),
   instructions: z.string().min(10, 'Instructions too short'),
   thumbnailUrl: z.string().url().optional().or(z.literal('')),
-  status: z.enum(['DRAFT', 'PUBLISHED', 'PAUSED', 'EXPIRED', 'ARCHIVED']).default('DRAFT'),
+  status: z.enum(['DRAFT', 'PUBLISHED', 'PAUSED', 'EXPIRED', 'ARCHIVED']),
   startAt: z.string().optional(),
   endAt: z.string().optional(),
   links: z.array(linkSchema).optional(),
@@ -43,7 +44,7 @@ const AdminCreateTaskPage = () => {
     resolver: zodResolver(schema),
     defaultValues: {
       status: 'DRAFT',
-      links: [{ platform: 'instagram', url: '', label: '', actions: [{ actionType: 'like', isRequired: true }] }],
+      links: [{ platform: 'instagram', url: '', label: '', sortOrder: 0, actions: [{ actionType: 'like', isRequired: true }] }],
     },
   });
 
@@ -68,7 +69,7 @@ const AdminCreateTaskPage = () => {
         startAt: data.startAt ? new Date(data.startAt).toISOString() : undefined,
         endAt: data.endAt ? new Date(data.endAt).toISOString() : undefined,
       };
-      const res = await adminTaskService.createTask(payload);
+      await adminTaskService.createTask(payload);
       setToast({ message: 'Task created successfully!', type: 'success' });
       setTimeout(() => navigate(`/admin/tasks`), 1500);
     } catch (err: any) {
@@ -120,7 +121,7 @@ const AdminCreateTaskPage = () => {
                 <button
                   type="button"
                   id="add-link-btn"
-                  onClick={() => append({ platform: 'instagram', url: '', label: '', actions: [{ actionType: 'like', isRequired: true }] })}
+                  onClick={() => append({ platform: 'instagram', url: '', label: '', sortOrder: 0, actions: [{ actionType: 'like', isRequired: true }] })}
                   className="text-sm font-semibold text-violet-600 hover:text-violet-800 transition-colors"
                 >
                   + Add Link

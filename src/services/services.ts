@@ -1,5 +1,4 @@
 import api from './api';
-import type { User } from '../types';
 
 // Helper to get or create an anonymous session ID
 export const getAnonymousSessionId = (): string => {

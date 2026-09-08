@@ -45,6 +45,8 @@ export interface Task {
   updatedAt: string;
   links: TaskLink[];
   creator?: { id: string; email: string };
+  _count?: { submissions: number };
+  rewardPoints?: number;
 }
 
 export interface Pagination {

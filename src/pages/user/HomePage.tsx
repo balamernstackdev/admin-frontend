@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { MainLayout } from '../../layouts/MainLayout';
 import { taskService } from '../../services/services';
 import type { Task } from '../../types';
 import { useAuth } from '../../context/AuthContext';
-import { Toast, EmptyState } from '../../components/ui/index';
+import { Toast } from '../../components/ui/index';
 
 
 import { RecentTasks } from '../../components/tasks/RecentTasks';
@@ -34,7 +34,7 @@ const TaskPostSkeleton = () => (
 );
 
 const HomePage = () => {
-  const { user } = useAuth();
+  useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -58,7 +58,7 @@ const HomePage = () => {
         platform: platform !== 'All' ? platform : undefined,
       });
       // Sort by newest for the feed
-      const sorted = res.data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      const sorted = res.data.sort((a: Task, b: Task) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       setTasks(sorted);
       setTotalPages(res.pagination.totalPages);
     } catch {
