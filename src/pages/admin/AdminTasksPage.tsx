@@ -129,9 +129,9 @@ const AdminTasksPage = () => {
                      <th className="px-6 py-3 text-left font-semibold text-gray-500">Task</th>
                     <th className="px-6 py-3 text-left font-semibold text-gray-500">Platform</th>
                     <th className="px-6 py-3 text-left font-semibold text-gray-500">Status</th>
-                    <th className="px-6 py-3 text-left font-semibold text-gray-500">Completions</th>
-                    <th className="px-6 py-3 text-left font-semibold text-gray-500">Deadline</th>
-                    <th className="px-6 py-3 text-left font-semibold text-gray-500">Actions</th>
+                    {/* <th className="px-6 py-3 text-left font-semibold text-gray-500">Completions</th>
+                    <th className="px-6 py-3 text-left font-semibold text-gray-500">Deadline</th> */}
+                    <th className="px-6 py-3 text-right font-semibold text-gray-500">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -141,16 +141,16 @@ const AdminTasksPage = () => {
                       <tr key={task.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                         <td className="px-6 py-4">
                           <p className="font-semibold text-gray-900 line-clamp-1">{task.title}</p>
-                          <p className="text-xs text-gray-400">{task.completionCount} completions</p>
+                          {/* <p className="text-xs text-gray-400">{task.completionCount} completions</p> */}
                         </td>
                         <td className="px-6 py-4">
                           <span className="capitalize text-gray-600">{platformIcons[plat]} {plat}</span>
                         </td>
                         <td className="px-6 py-4"><Badge label={task.status} /></td>
-                        <td className="px-6 py-4 font-bold text-violet-600">👥 {task.completionCount}</td>
-                        <td className="px-6 py-4 text-gray-500 text-xs">{formatDate(task.endAt)}</td>
+                        {/* <td className="px-6 py-4 font-bold text-violet-600">👥 {task.completionCount}</td>
+                        <td className="px-6 py-4 text-gray-500 text-xs">{formatDate(task.endAt)}</td> */}
                         <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center justify-end gap-3">
                             <Link to={`/tasks/${task.id}`} target="_blank" className="text-blue-600 hover:text-blue-800 transition-colors" title="View as User">
                               <Eye size={18} />
                             </Link>
@@ -192,8 +192,8 @@ const AdminTasksPage = () => {
                     <Badge label={task.status} />
                   </div>
                   <div className="flex items-center gap-3 text-xs text-gray-500">
-                    <span>👥 {task.completionCount} completions</span>
-                    <span>•</span>
+                    {/* <span>👥 {task.completionCount} completions</span>
+                    <span>•</span> */}
                     <span>{task.links?.[0]?.platform || 'custom'}</span>
                   </div>
                   <div className="flex gap-2">
