@@ -49,10 +49,7 @@ const TaskDetailPage = () => {
       .finally(() => setLoading(false));
   }, [taskId]);
 
-  const handleOpenLink = (linkId: string, url: string) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
-    setOpenedLinks(prev => new Set(prev).add(linkId));
-  };
+
 
   const handleComplete = async () => {
     if (!confirmed) {
@@ -183,17 +180,20 @@ const TaskDetailPage = () => {
                         </span>
                       ))}
                     </div>
-                    <button
+                    <a
                       id={`open-link-${link.id}`}
-                      onClick={() => handleOpenLink(link.id, link.url)}
-                      className={`shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setOpenedLinks(prev => new Set(prev).add(link.id))}
+                      className={`inline-block text-center shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
                         openedLinks.has(link.id)
-                          ? 'bg-green-100 text-green-700 border border-green-200'
+                          ? 'bg-green-100 text-green-700 border border-green-200 hover:bg-green-200'
                           : 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:shadow-lg hover:shadow-violet-500/30'
                       }`}
                     >
                       {openedLinks.has(link.id) ? '✓ Opened' : '🔗 Open Link'}
-                    </button>
+                    </a>
                   </div>
                 </div>
               ))}
