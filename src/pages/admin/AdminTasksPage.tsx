@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { AdminLayout } from '../../layouts/AdminLayout';
 import { adminTaskService } from '../../services/services';
 import type { Task } from '../../types';
-import { formatDate, platformIcons } from '../../utils/index';
+import { platformIcons } from '../../utils/index';
 import { Badge, Toast, Modal, EmptyState } from '../../components/ui/index';
 import { Button } from '../../components/ui/Button';
 import { Edit2, PauseCircle, PlayCircle, Trash2, Eye } from 'lucide-react';
